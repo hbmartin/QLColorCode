@@ -36,7 +36,7 @@ debug Starting colorize.sh
 #echo target is $target
 
 hlDir=/opt/local/share/highlight
-cmd=/opt/local/bin/highlight
+cmd=/usr/local/Cellar/highlight/3.9/bin/highlight
 cmdOpts=(-I -k "$font" -K ${fontSizePoints} -q -s ${hlTheme} -u ${textEncoding} ${=extraHLFlags} --validate-input)
 
 #for o in $cmdOpts; do echo $o\<br/\>; done 
@@ -72,14 +72,16 @@ debug Resolved $target to language $lang
 
 go4it () {
     debug Generating the preview
-    local title="`basename ${target}`"
     if [ $thumb = "1" ]; then
-        $reader | head -n 100 | head -c 20000 | $cmd -S $lang $cmdOpts && exit 0
+        $reader | head -n 100 | head -c 20000 | $cmd --syntax $lang $cmdOpts | \
+            sed 's/^<title>Source file<\/title>$/<title><\/title>/' && exit 0
     elif [ -n "$maxFileSize" ]; then
-        $reader | head -c $maxFileSize | $cmd -T "${title}" -S $lang $cmdOpts && exit 0
+        $reader | head -c $maxFileSize | $cmd --syntax $lang $cmdOpts | \
+            sed 's/^<title>Source file<\/title>$/<title><\/title>/' && exit 0
     else
-        $reader | $cmd -T "${title}" -S $lang $cmdOpts && exit 0
-    fi
+        $reader | $cmd --syntax $lang $cmdOpts | \
+            sed 's/^<title>Source file<\/title>$/<title><\/title>/' && exit 0
+fi
 }
 
 setopt no_err_exit
